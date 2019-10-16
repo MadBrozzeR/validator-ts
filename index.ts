@@ -15,6 +15,11 @@ type ValidationBase<VS extends Values> = {
   errors: Errors<VS>;
 };
 
+type ValidationParams<VS extends Values> = {
+  field?: keyof VS;
+  compare?: ValidationBase<VS>;
+};
+
 interface CreatedRule {
   <VS extends Values, F extends keyof VS>(this: Validation<VS>, value: VS[F], field?: F): void;
 }
@@ -88,10 +93,10 @@ const RULES = {
 class Validation<VS extends Values> {
   valid: boolean = true;
   errors: Errors<VS> = {};
-  values: Partial<VS>;
+  values: VS;
   schema: Schema<VS>;
 
-  constructor (values: Partial<VS>, schema: Schema<VS>) {
+  constructor (values: VS, schema: Schema<VS>) {
     this.values = values;
     this.schema = schema;
   }
@@ -144,18 +149,46 @@ function isRule<VS extends Values, F extends keyof VS> (rule: Schema<VS>[F]): ru
   return rule instanceof Function;
 }
 
-function checkIfErrorsAreEqual (left, right): boolean {
+function checkIfErrorsAreEqual (left: string[] | undefined, right: string[] | undefined): boolean {
   let result = true;
 
-  if (left.length === right.length) {
-    for (let index = 0 ; index < left.length ; ++index) {
-      if (left[index] !== right[index]) {
-        result = false;
-        break;
+  if (left && right) {
+    if (left.length === right.length) {
+      for (let index = 0 ; index < left.length ; ++index) {
+        if (left[index] !== right[index]) {
+          result = false;
+          break;
+        }
+      }
+    } else {
+      result = false;
+    }
+  } else if (left === right) {
+    result = true;
+  }
+
+  return result;
+}
+
+function updateResult<VS extends Values> (previous: ValidationBase<VS>, current: Validation<VS>, field: keyof VS) {
+  let result: ValidationBase<VS>;
+
+  if (previous) {
+    if (checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
+      result = previous;
+    } else {
+      result = {
+        errors: {},
+        valid: true
+      };
+
+      for (let key in previous.errors) {
+        if (key !== field || current.errors[field]) {
+          result.errors[key] = current.errors[key];
+          result.valid = false;
+        }
       }
     }
-  } else {
-    result = false;
   }
 
   return result;
@@ -169,28 +202,22 @@ class Validator<VS extends Values> {
     this.schema = schema;
   }
 
-  validate (values: VS) {
-    const result = new Validation<VS>(values, this.schema);
+  validate (values: VS, params: ValidationParams<VS> = {}) {
+    const validation = new Validation<VS>(values, this.schema);
 
-    for (const field in this.schema) {
-      result.validateField(field);
+    if (params.field) {
+      validation.validateField(params.field);
+
+      if (params.compare) {
+        return updateResult(params.compare, validation, params.field);
+      }
+    } else {
+      for (const field in this.schema) {
+        validation.validateField(field);
+      }
     }
 
-    return result.valueOf();
-  }
-
-  validateField (values: VS, field: keyof VS) {
-    return new Validation<VS>(values, this.schema).validateField(field).valueOf();
-  }
-
-  validateFields (values: Partial<VS>) {
-    const result = new Validation<VS>(values, this.schema);
-
-    for (const field in values) {
-      result.validateField(field);
-    }
-
-    return result.valueOf();
+    return validation.valueOf();
   }
 }
 
