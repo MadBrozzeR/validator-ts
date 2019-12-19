@@ -1,0 +1,25 @@
+{
+  "name": "mbr-validator",
+  "version": "1.0.0",
+  "description": "Validator by schema ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/madbrozzer/validator-ts.git"
+  },
+  "keywords": [
+    "validator",
+    "schema",
+    "form",
+    "validation"
+  ],
+  "author": "MadBrozzeR",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/madbrozzer/validator-ts/issues"
+  },
+  "homepage": "https://github.com/madbrozzer/validator-ts#readme"
+}
