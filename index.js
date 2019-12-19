@@ -3,7 +3,7 @@ exports.__esModule = true;
 var RULES = {
     Required: function (message) {
         return function (value, field) {
-            if (value == undefined || value === '') {
+            if (value == undefined || value === '' || value === null) {
                 this.error(field, message);
             }
         };
@@ -108,6 +108,7 @@ var Validation = /** @class */ (function () {
     };
     return Validation;
 }());
+exports.Validation = Validation;
 function isRuleArray(rule) {
     return rule instanceof Array;
 }
@@ -135,7 +136,7 @@ function checkIfErrorsAreEqual(left, right) {
     return result;
 }
 function updateResult(previous, current, field) {
-    var result;
+    var result = previous;
     if (previous) {
         if (checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
             result = previous;

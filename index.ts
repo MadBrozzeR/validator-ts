@@ -2,7 +2,7 @@ type Values = {
   [field: string]: any;
 };
 
-type Rule<VS extends Values, F extends keyof VS> = (this: Validation<VS>, value: VS[F], field?: F) => void;
+type Rule<VS extends Values, F extends keyof VS> = (this: Validation<VS>, value: VS[F], field: F) => void;
 
 type Schema<VS extends Values> = {
   [F in keyof VS]?: Rule<VS, F> | Rule<VS, F>[];
@@ -21,13 +21,13 @@ type ValidationParams<VS extends Values> = {
 };
 
 interface CreatedRule {
-  <VS extends Values, F extends keyof VS>(this: Validation<VS>, value: VS[F], field?: F): void;
+  <VS extends Values, F extends keyof VS>(this: Validation<VS>, value: VS[F], field: F): void;
 }
 
 const RULES = {
   Required: function (message: string): CreatedRule {
     return function (value, field) {
-      if (value == undefined || value === '') {
+      if (value == undefined || value === '' || value === null) {
         this.error(field, message);
       }
     }
@@ -90,7 +90,7 @@ const RULES = {
   }
 };
 
-class Validation<VS extends Values> {
+export class Validation<VS extends Values> {
   valid: boolean = true;
   errors: Errors<VS> = {};
   values: VS;
@@ -171,7 +171,7 @@ function checkIfErrorsAreEqual (left: string[] | undefined, right: string[] | un
 }
 
 function updateResult<VS extends Values> (previous: ValidationBase<VS>, current: Validation<VS>, field: keyof VS) {
-  let result: ValidationBase<VS>;
+  let result: ValidationBase<VS> = previous;
 
   if (previous) {
     if (checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {

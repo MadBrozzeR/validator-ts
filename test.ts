@@ -11,7 +11,7 @@ const CMD = '\x1b';
 
 const STYLE = {
   CLEAR: CMD + '[0m',
-  YELLOW: CMD + '[33m',
+  GREEN: CMD + '[32m',
   RED: CMD + '[31m'
 };
 
@@ -174,7 +174,7 @@ let counter = 0;
 let failed = false;
 
 function resolve() {
-  process.stdout.write(STYLE.YELLOW + ' OK\n' + STYLE.CLEAR);
+  process.stdout.write(STYLE.GREEN + ' OK\n' + STYLE.CLEAR);
   nextTest();
 }
 
