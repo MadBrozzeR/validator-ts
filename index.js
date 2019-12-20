@@ -66,11 +66,12 @@ var RULES = {
     }
 };
 var Validation = /** @class */ (function () {
-    function Validation(values, schema) {
+    function Validation(values, params, schema) {
         this.valid = true;
         this.errors = {};
         this.values = values;
         this.schema = schema;
+        this.params = params;
     }
     Validation.prototype.error = function (field, message) {
         this.valid = false;
@@ -139,10 +140,7 @@ function checkIfErrorsAreEqual(left, right) {
 function updateResult(previous, current, field) {
     var result = previous;
     if (previous) {
-        if (checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
-            result = previous;
-        }
-        else {
+        if (!checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
             result = {
                 errors: {},
                 valid: true
@@ -157,16 +155,16 @@ function updateResult(previous, current, field) {
     }
     return result;
 }
-function createRule(rule) {
-    return rule;
-}
 var Validator = /** @class */ (function () {
     function Validator(schema) {
         this.schema = schema;
     }
+    Validator.createRule = function (rule) {
+        return rule;
+    };
     Validator.prototype.validate = function (values, params) {
         if (params === void 0) { params = {}; }
-        var validation = new Validation(values, this.schema);
+        var validation = new Validation(values, params.params, this.schema);
         if (params.field) {
             validation.validateField(params.field);
             if (params.compare) {
@@ -181,7 +179,6 @@ var Validator = /** @class */ (function () {
         return validation.valueOf();
     };
     Validator.RULES = RULES;
-    Validator.createRule = createRule;
     return Validator;
 }());
 exports["default"] = Validator;

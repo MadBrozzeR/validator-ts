@@ -11,6 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 exports.__esModule = true;
+var mbr_test_1 = require("mbr-test");
 var index_1 = require("./index");
 var values = {
     stringField: 'string',
@@ -24,6 +25,11 @@ var STYLE = {
     GREEN: CMD + '[32m',
     RED: CMD + '[31m'
 };
+var CustomRule = index_1["default"].createRule(function (value, field) {
+    if (this.params && this.params.check && value !== this.params.check) {
+        this.error(field, 'Value must be exactly ' + this.params.check);
+    }
+});
 var validator = new index_1["default"]({
     stringField: [
         index_1["default"].RULES.Required('Required field'),
@@ -41,15 +47,16 @@ var validator = new index_1["default"]({
     ],
     yetAnotherNumber: [
         index_1["default"].RULES.NotLessThen(10, 'Should not be less then 10'),
-        index_1["default"].RULES.NotMoreThen(100, 'Should not be more then 100')
+        index_1["default"].RULES.NotMoreThen(100, 'Should not be more then 100'),
+        CustomRule
     ]
 });
 function stringify(data) {
     return JSON.stringify(data, null, 2);
 }
-var test = {
+mbr_test_1.test({
     'Should be OK': function (resolve, fail) {
-        var validation = validator.validate(values);
+        var validation = validator.validate(values, { params: { check: 51 } });
         if (validation.valid) {
             resolve();
         }
@@ -137,28 +144,15 @@ var test = {
         else {
             fail(stringify(validation));
         }
+    },
+    'Should fail custom check': function (resolve, fail) {
+        var validation = validator.validate(values, { params: { check: 3 } });
+        if (!validation.valid &&
+            validation.errors.yetAnotherNumber[0] === 'Value must be exactly 3') {
+            resolve();
+        }
+        else {
+            fail(stringify(validation));
+        }
     }
-};
-var cases = Object.keys(test);
-var counter = 0;
-var failed = false;
-function resolve() {
-    process.stdout.write(STYLE.GREEN + ' OK\n' + STYLE.CLEAR);
-    nextTest();
-}
-function fail(reason) {
-    process.stdout.write(STYLE.RED + ' FAIL\n' + reason + STYLE.CLEAR + '\n');
-    failed = true;
-    nextTest();
-}
-function nextTest() {
-    var currentCase = cases[counter++];
-    if (currentCase) {
-        process.stdout.write(currentCase);
-        test[currentCase](resolve, fail);
-    }
-    else if (failed) {
-        process.exit(1);
-    }
-}
-nextTest();
+});

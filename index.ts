@@ -2,10 +2,10 @@ type Values = {
   [field: string]: any;
 };
 
-type Rule<VS extends Values, F extends keyof VS> = (this: Validation<VS>, value: VS[F], field: F) => void;
+type Rule<VS extends Values, PS, F extends keyof VS> = (this: Validation<VS, PS>, value: VS[F], field: F) => void;
 
-type Schema<VS extends Values> = {
-  [F in keyof VS]?: Rule<VS, F> | Rule<VS, F>[];
+type Schema<VS extends Values, PS> = {
+  [F in keyof VS]?: Rule<VS, PS, F> | Rule<VS, PS, F>[];
 }
 
 type Errors<VS extends Values> = {[field in keyof VS]?: string[]};
@@ -15,13 +15,14 @@ type ValidationBase<VS extends Values> = {
   errors: Errors<VS>;
 };
 
-type ValidationParams<VS extends Values> = {
+type ValidationParams<VS extends Values, PS> = {
   field?: keyof VS;
   compare?: ValidationBase<VS>;
+  params?: PS;
 };
 
 interface CreatedRule {
-  <VS extends Values, F extends keyof VS>(this: Validation<VS>, value: VS[F], field: F): void;
+  <VS extends Values, PS, F extends keyof VS>(this: Validation<VS, PS>, value: VS[F], field: F): void;
 }
 
 const RULES = {
@@ -90,15 +91,17 @@ const RULES = {
   }
 };
 
-export class Validation<VS extends Values> {
+export class Validation<VS extends Values, PS> {
   valid: boolean = true;
   errors: Errors<VS> = {};
   values: VS;
-  schema: Schema<VS>;
+  schema: Schema<VS, PS>;
+  params: PS;
 
-  constructor (values: VS, schema: Schema<VS>) {
+  constructor (values: VS, params: PS, schema: Schema<VS, PS>) {
     this.values = values;
     this.schema = schema;
+    this.params = params;
   }
 
   error (field: keyof VS, message: string) {
@@ -112,7 +115,7 @@ export class Validation<VS extends Values> {
     }
   }
 
-  useRules<F extends keyof VS> (value: VS[F], field: F, rules: Rule<VS, F>[]) {
+  useRules<F extends keyof VS> (value: VS[F], field: F, rules: Rule<VS, PS, F>[]) {
     for (let index = 0 ; index < rules.length ; ++index) {
       rules[index].call(this, value, field);
     }
@@ -142,11 +145,11 @@ export class Validation<VS extends Values> {
   }
 }
 
-function isRuleArray<VS extends Values, F extends keyof VS> (rule: Schema<VS>[F]): rule is Rule<VS, F>[] {
+function isRuleArray<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, PS, F>[] {
   return rule instanceof Array;
 }
 
-function isRule<VS extends Values, F extends keyof VS> (rule: Schema<VS>[F]): rule is Rule<VS, F> {
+function isRule<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, PS, F> {
   return rule instanceof Function;
 }
 
@@ -171,7 +174,11 @@ function checkIfErrorsAreEqual (left: string[] | undefined, right: string[] | un
   return result;
 }
 
-function updateResult<VS extends Values> (previous: ValidationBase<VS>, current: Validation<VS>, field: keyof VS) {
+function updateResult<VS extends Values, PS> (
+  previous: ValidationBase<VS>,
+  current: Validation<VS, PS>,
+  field: keyof VS
+) {
   let result: ValidationBase<VS> = previous;
 
   if (previous) {
@@ -193,20 +200,22 @@ function updateResult<VS extends Values> (previous: ValidationBase<VS>, current:
   return result;
 }
 
-class Validator<VS extends Values> {
+class Validator<VS extends Values, PS = void> {
   static RULES = RULES;
-  static createRule<VS extends Values, V>(rule: (this: Validation<VS>, value: V, field: keyof VS) => void) {
+  static createRule<VS extends Values, V, PS = void>(
+    rule: (this: Validation<VS, PS>, value: V, field: keyof VS) => void
+  ) {
     return rule;
   }
 
-  schema: Schema<VS>;
+  schema: Schema<VS, PS>;
 
-  constructor (schema: Schema<VS>) {
+  constructor (schema: Schema<VS, PS>) {
     this.schema = schema;
   }
 
-  validate (values: VS, params: ValidationParams<VS> = {}) {
-    const validation = new Validation<VS>(values, this.schema);
+  validate (values: VS, params: ValidationParams<VS, PS> = {}) {
+    const validation = new Validation(values, params.params, this.schema);
 
     if (params.field) {
       validation.validateField(params.field);
