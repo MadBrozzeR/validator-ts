@@ -21,7 +21,7 @@ var values = {
 var CMD = '\x1b';
 var STYLE = {
     CLEAR: CMD + '[0m',
-    YELLOW: CMD + '[33m',
+    GREEN: CMD + '[32m',
     RED: CMD + '[31m'
 };
 var validator = new index_1["default"]({
@@ -143,7 +143,7 @@ var cases = Object.keys(test);
 var counter = 0;
 var failed = false;
 function resolve() {
-    process.stdout.write(STYLE.YELLOW + ' OK\n' + STYLE.CLEAR);
+    process.stdout.write(STYLE.GREEN + ' OK\n' + STYLE.CLEAR);
     nextTest();
 }
 function fail(reason) {

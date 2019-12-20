@@ -74,8 +74,9 @@ var Validation = /** @class */ (function () {
     }
     Validation.prototype.error = function (field, message) {
         this.valid = false;
-        if (this.errors[field]) {
-            this.errors[field].push(message);
+        var errors = this.errors[field];
+        if (errors) {
+            errors.push(message);
         }
         else {
             this.errors[field] = [message];
@@ -156,6 +157,9 @@ function updateResult(previous, current, field) {
     }
     return result;
 }
+function createRule(rule) {
+    return rule;
+}
 var Validator = /** @class */ (function () {
     function Validator(schema) {
         this.schema = schema;
@@ -177,6 +181,7 @@ var Validator = /** @class */ (function () {
         return validation.valueOf();
     };
     Validator.RULES = RULES;
+    Validator.createRule = createRule;
     return Validator;
 }());
 exports["default"] = Validator;

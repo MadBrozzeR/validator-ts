@@ -103,9 +103,10 @@ export class Validation<VS extends Values> {
 
   error (field: keyof VS, message: string) {
     this.valid = false;
+    const errors = this.errors[field];
 
-    if (this.errors[field]) {
-      this.errors[field].push(message);
+    if (errors) {
+      errors.push(message);
     } else {
       this.errors[field] = [message];
     }
@@ -194,8 +195,14 @@ function updateResult<VS extends Values> (previous: ValidationBase<VS>, current:
   return result;
 }
 
+function createRule<VS extends Values, V>(rule: (this: Validation<VS>, value: V, field: keyof VS) => void) {
+  return rule;
+}
+
 class Validator<VS extends Values> {
   static RULES = RULES;
+  static createRule = createRule;
+
   schema: Schema<VS>;
 
   constructor (schema: Schema<VS>) {
