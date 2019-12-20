@@ -175,9 +175,7 @@ function updateResult<VS extends Values> (previous: ValidationBase<VS>, current:
   let result: ValidationBase<VS> = previous;
 
   if (previous) {
-    if (checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
-      result = previous;
-    } else {
+    if (!checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
       result = {
         errors: {},
         valid: true
@@ -195,13 +193,11 @@ function updateResult<VS extends Values> (previous: ValidationBase<VS>, current:
   return result;
 }
 
-function createRule<VS extends Values, V>(rule: (this: Validation<VS>, value: V, field: keyof VS) => void) {
-  return rule;
-}
-
 class Validator<VS extends Values> {
   static RULES = RULES;
-  static createRule = createRule;
+  static createRule<VS extends Values, V>(rule: (this: Validation<VS>, value: V, field: keyof VS) => void) {
+    return rule;
+  }
 
   schema: Schema<VS>;
 
