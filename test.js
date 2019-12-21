@@ -56,7 +56,7 @@ function stringify(data) {
 }
 mbr_test_1.test({
     'Should be OK': function (resolve, fail) {
-        var validation = validator.validate(values, { params: { check: 51 } });
+        var validation = validator.validate(values, { params: { check: 50 } });
         if (validation.valid) {
             resolve();
         }

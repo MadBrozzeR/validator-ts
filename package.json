@@ -1,7 +1,7 @@
 {
   "name": "mbr-validator",
-  "version": "1.1.2",
-  "description": "Validator by schema ",
+  "version": "1.1.4",
+  "description": "Form validation by schema",
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/MadBrozzeR/validator-ts#readme",
   "devDependencies": {
-    "@types/node": "^12.12.21",
     "mbr-test": "1.0.0"
   }
 }
