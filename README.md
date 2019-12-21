@@ -33,8 +33,8 @@ const form = {
   ...
 }
 ```
-All keys is being treated as field names and values as field values. Deep structure is still possible, but it is highly
-not recommended, as there is no default approache for that and it will be difficult to understand and maintain.
+All keys are being treated as field names and values as field values. Deep structure is still possible, but it is highly
+not recommended, as there is no default approach for that and it will be difficult to understand and maintain.
 
 ## Validation schema
 
@@ -113,8 +113,8 @@ const schema<...> = {
 
 ## Validation itself
 
-When your validation schema is ready and you are going to validate it, you should call to `validate` method from
-`validator` instance, created by Validator constructor.
+When your validation schema is ready and you are going to validate your values, you should call to
+`validate` method from `validator` instance, created by Validator constructor.
 
 ```
 const validation = validator.validate(form, props);
@@ -201,11 +201,11 @@ const validator = new Validation<TForm, TParams>({
 const validation = validator.validate(form, { params: validationParams });
 ```
 
-If `TParams` type parameter is not provided to generic, TS shoult not let you use it in your validation rule.
+If `TParams` type parameter is not provided to generic, TS should not let you use it in your validation rule.
 
 ## Reusable rules
 
-From time to time you will need to apply single validation rule for different fields. With vanilla JS you can simply
+From time to time you will need to apply single validation rule to different fields. With vanilla JS you can simply
 create required function, but with TS you can easily get messed up with types, so there is `Validator.createRule`
 static method to make it simple.
 
@@ -291,9 +291,8 @@ const validationParams = {
 
 const validation = validator.validate(form, { params: validationParams });
 
-// Validation will fail with result object:
-
-/*
+/* Validation will fail with result object:
+ *
  * {
  *   valid: false,
  *   errors: {
