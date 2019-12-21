@@ -2,20 +2,24 @@ type Values = {
   [field: string]: any;
 };
 
-type Rule<VS extends Values, PS, F extends keyof VS> = (this: Validation<VS, PS>, value: VS[F], field: F) => void;
+export type Rule<VS extends Values, F extends keyof VS, PS = void> = (
+  this: Validation<VS, PS>,
+  value: VS[F],
+  field: F
+) => void;
 
-type Schema<VS extends Values, PS> = {
-  [F in keyof VS]?: Rule<VS, PS, F> | Rule<VS, PS, F>[];
+export type Schema<VS extends Values, PS = void> = {
+  [F in keyof VS]?: Rule<VS, F, PS> | Rule<VS, F, PS>[];
 }
 
 type Errors<VS extends Values> = {[field in keyof VS]?: string[]};
 
-type ValidationBase<VS extends Values> = {
+export type ValidationBase<VS extends Values> = {
   valid: boolean;
   errors: Errors<VS>;
 };
 
-type ValidationParams<VS extends Values, PS> = {
+export type ValidationParams<VS extends Values, PS> = {
   field?: keyof VS;
   compare?: ValidationBase<VS>;
   params?: PS;
@@ -96,7 +100,7 @@ export class Validation<VS extends Values, PS> {
   errors: Errors<VS> = {};
   values: VS;
   schema: Schema<VS, PS>;
-  params: PS;
+  params: PS | void;
 
   constructor (values: VS, params: PS, schema: Schema<VS, PS>) {
     this.values = values;
@@ -115,7 +119,7 @@ export class Validation<VS extends Values, PS> {
     }
   }
 
-  useRules<F extends keyof VS> (value: VS[F], field: F, rules: Rule<VS, PS, F>[]) {
+  useRules<F extends keyof VS> (value: VS[F], field: F, rules: Rule<VS, F, PS>[]) {
     for (let index = 0 ; index < rules.length ; ++index) {
       rules[index].call(this, value, field);
     }
@@ -145,11 +149,11 @@ export class Validation<VS extends Values, PS> {
   }
 }
 
-function isRuleArray<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, PS, F>[] {
+function isRuleArray<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, F, PS>[] {
   return rule instanceof Array;
 }
 
-function isRule<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, PS, F> {
+function isRule<VS extends Values, PS, F extends keyof VS> (rule: Schema<VS, PS>[F]): rule is Rule<VS, F, PS> {
   return rule instanceof Function;
 }
 
