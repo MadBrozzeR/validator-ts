@@ -22,7 +22,7 @@
     "url": "https://github.com/MadBrozzeR/validator-ts/issues"
   },
   "homepage": "https://github.com/MadBrozzeR/validator-ts#readme",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^12.12.21",
     "mbr-test": "1.0.0"
   }
