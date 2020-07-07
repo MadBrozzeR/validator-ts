@@ -3,7 +3,7 @@ type Values = {
 };
 
 export type Rule<VS extends Values, F extends keyof VS, PS = void> = (
-  this: Validation<VS, PS>,
+  this: Validation<VS, PS | void>,
   value: VS[F],
   field: F
 ) => void;
