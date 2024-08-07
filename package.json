@@ -1,6 +1,6 @@
 {
   "name": "mbr-validator",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Form validation by schema",
   "main": "index.js",
   "scripts": {

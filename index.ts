@@ -14,14 +14,14 @@ export type Schema<VS extends Values, PS = void> = {
 
 type Errors = Record<string, string[]>;
 
-export type ValidationBase<VS extends Values> = {
+export type ValidationBase = {
   valid: boolean;
   errors: Errors;
 };
 
 export type ValidationParams<VS extends Values, PS> = {
   field?: keyof VS;
-  compare?: ValidationBase<VS>;
+  compare?: ValidationBase;
   params?: PS;
 };
 
@@ -141,7 +141,7 @@ export class Validation<VS extends Values, PS> {
     return this;
   }
 
-  valueOf(): ValidationBase<VS> {
+  valueOf(): ValidationBase {
     return {
       valid: this.valid,
       errors: this.errors
@@ -179,11 +179,11 @@ function checkIfErrorsAreEqual (left: string[] | undefined, right: string[] | un
 }
 
 function updateResult<VS extends Values, PS> (
-  previous: ValidationBase<VS>,
+  previous: ValidationBase,
   current: Validation<VS, PS>,
   field: string
 ) {
-  let result: ValidationBase<VS> = previous;
+  let result: ValidationBase = previous;
 
   if (previous) {
     if (!checkIfErrorsAreEqual(previous.errors[field], current.errors[field])) {
