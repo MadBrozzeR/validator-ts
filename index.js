@@ -1,66 +1,67 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Validation = void 0;
 var RULES = {
     Required: function (message) {
         return function (value, field) {
             if (value == undefined || value === '' || value === null) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     LessThen: function (limit, message) {
         return function (value, field) {
             if (value >= limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     NotLessThen: function (limit, message) {
         return function (value, field) {
             if (value < limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     MoreThen: function (limit, message) {
         return function (value, field) {
             if (value <= limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     NotMoreThen: function (limit, message) {
         return function (value, field) {
             if (value > limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     Between: function (min, max, message) {
         return function (value, field) {
             if (value < min || value > max) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     Match: function (regExp, message) {
         return function (value, field) {
             if (!regExp.test(value)) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     NotLonger: function (limit, message) {
         return function (value, field) {
             if (value.length > limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     },
     NotShorter: function (limit, message) {
         return function (value, field) {
             if (value.length < limit) {
-                this.error(field, message);
+                this.error(String(field), message);
             }
         };
     }
@@ -168,7 +169,7 @@ var Validator = /** @class */ (function () {
         if (params.field) {
             validation.validateField(params.field);
             if (params.compare) {
-                return updateResult(params.compare, validation, params.field);
+                return updateResult(params.compare, validation, String(params.field));
             }
         }
         else {
@@ -181,4 +182,4 @@ var Validator = /** @class */ (function () {
     Validator.RULES = RULES;
     return Validator;
 }());
-exports["default"] = Validator;
+exports.default = Validator;

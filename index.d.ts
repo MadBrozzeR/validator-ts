@@ -1,36 +1,36 @@
-declare type Values = {
+type Values = {
     [field: string]: any;
 };
-declare type Rule<VS extends Values, F extends keyof VS> = (this: Validation<VS>, value: VS[F], field?: F) => void;
-declare type Schema<VS extends Values> = {
-    [F in keyof VS]?: Rule<VS, F> | Rule<VS, F>[];
+export type Rule<VS extends Values, F extends keyof VS, PS = void> = (this: Validation<VS, PS | void>, value: VS[F], field: F) => void;
+export type Schema<VS extends Values, PS = void> = {
+    [F in keyof VS]?: Rule<VS, F, PS> | Rule<VS, F, PS>[];
 };
-declare type Errors<VS extends Values> = {
-    [field in keyof VS]?: string[];
-};
-declare type ValidationBase<VS extends Values> = {
+type Errors = Record<string, string[]>;
+export type ValidationBase<VS extends Values> = {
     valid: boolean;
-    errors: Errors<VS>;
+    errors: Errors;
 };
-declare type ValidationParams<VS extends Values> = {
+export type ValidationParams<VS extends Values, PS> = {
     field?: keyof VS;
     compare?: ValidationBase<VS>;
+    params?: PS;
 };
 interface CreatedRule {
-    <VS extends Values, F extends keyof VS>(this: Validation<VS>, value: VS[F], field?: F): void;
+    <VS extends Values, PS, F extends keyof VS>(this: Validation<VS, PS>, value: VS[F], field: F): void;
 }
-declare class Validation<VS extends Values> {
+export declare class Validation<VS extends Values, PS> {
     valid: boolean;
-    errors: Errors<VS>;
+    errors: Errors;
     values: VS;
-    schema: Schema<VS>;
-    constructor(values: VS, schema: Schema<VS>);
-    error(field: keyof VS, message: string): void;
-    useRules<F extends keyof VS>(value: VS[F], field: F, rules: Rule<VS, F>[]): void;
+    schema: Schema<VS, PS>;
+    params: PS | void;
+    constructor(values: VS, params: PS, schema: Schema<VS, PS>);
+    error(field: string, message: string): void;
+    useRules<F extends keyof VS>(value: VS[F], field: F, rules: Rule<VS, F, PS>[]): void;
     validateField<F extends keyof VS>(field: F): this;
     valueOf(): ValidationBase<VS>;
 }
-declare class Validator<VS extends Values> {
+declare class Validator<VS extends Values, PS = void> {
     static RULES: {
         Required: (message: string) => CreatedRule;
         LessThen: (limit: number, message: string) => CreatedRule;
@@ -42,8 +42,9 @@ declare class Validator<VS extends Values> {
         NotLonger: (limit: number, message: string) => CreatedRule;
         NotShorter: (limit: number, message: string) => CreatedRule;
     };
-    schema: Schema<VS>;
-    constructor(schema: Schema<VS>);
-    validate(values: VS, params?: ValidationParams<VS>): ValidationBase<VS>;
+    static createRule<VS extends Values, V, PS = void>(rule: (this: Validation<VS, PS>, value: V, field: keyof VS) => void): (this: Validation<VS, PS>, value: V, field: keyof VS) => void;
+    schema: Schema<VS, PS>;
+    constructor(schema: Schema<VS, PS>);
+    validate(values: VS, params?: ValidationParams<VS, PS>): ValidationBase<VS>;
 }
 export default Validator;

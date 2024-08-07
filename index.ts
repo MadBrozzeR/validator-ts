@@ -12,11 +12,11 @@ export type Schema<VS extends Values, PS = void> = {
   [F in keyof VS]?: Rule<VS, F, PS> | Rule<VS, F, PS>[];
 }
 
-type Errors<VS extends Values> = {[field in keyof VS]?: string[]};
+type Errors = Record<string, string[]>;
 
 export type ValidationBase<VS extends Values> = {
   valid: boolean;
-  errors: Errors<VS>;
+  errors: Errors;
 };
 
 export type ValidationParams<VS extends Values, PS> = {
@@ -33,63 +33,63 @@ const RULES = {
   Required: function (message: string): CreatedRule {
     return function (value, field) {
       if (value == undefined || value === '' || value === null) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   LessThen: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value >= limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   NotLessThen: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value < limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   MoreThen: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value <= limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   NotMoreThen: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value > limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   Between: function (min: number, max: number, message: string): CreatedRule {
     return function (value, field) {
       if (value < min || value > max) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   Match: function (regExp: RegExp, message: string): CreatedRule {
     return function (value, field) {
       if (!regExp.test(value)) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   NotLonger: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value.length > limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   },
   NotShorter: function (limit: number, message: string): CreatedRule {
     return function (value, field) {
       if (value.length < limit) {
-        this.error(field, message);
+        this.error(String(field), message);
       }
     }
   }
@@ -97,7 +97,7 @@ const RULES = {
 
 export class Validation<VS extends Values, PS> {
   valid: boolean = true;
-  errors: Errors<VS> = {};
+  errors: Errors = {};
   values: VS;
   schema: Schema<VS, PS>;
   params: PS | void;
@@ -108,7 +108,7 @@ export class Validation<VS extends Values, PS> {
     this.params = params;
   }
 
-  error (field: keyof VS, message: string) {
+  error (field: string, message: string) {
     this.valid = false;
     const errors = this.errors[field];
 
@@ -181,7 +181,7 @@ function checkIfErrorsAreEqual (left: string[] | undefined, right: string[] | un
 function updateResult<VS extends Values, PS> (
   previous: ValidationBase<VS>,
   current: Validation<VS, PS>,
-  field: keyof VS
+  field: string
 ) {
   let result: ValidationBase<VS> = previous;
 
@@ -225,7 +225,7 @@ class Validator<VS extends Values, PS = void> {
       validation.validateField(params.field);
 
       if (params.compare) {
-        return updateResult(params.compare, validation, params.field);
+        return updateResult(params.compare, validation, String(params.field));
       }
     } else {
       for (const field in this.schema) {
